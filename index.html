@@ -1,1 +1,73 @@
 
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Urna de Dízimo</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+        .container { max-width: 400px; margin: auto; }
+        input, button { margin: 5px; padding: 10px; width: 100%; }
+        .urna-container { position: relative; margin-top: 20px; height: 200px; }
+        .urna { width: 200px; height: auto; }
+        .envelope { 
+            width: 60px; 
+            position: absolute; 
+            top: 20px; /* Ajustado para não sobrepor o botão */
+            left: 50%; 
+            transform: translateX(-50%);
+            transition: top 1s ease-in-out, opacity 0.5s ease-in-out;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Deposite seu Dízimo</h2>
+        <input type="text" id="nome" placeholder="Nome do Doador">
+        <button onclick="adicionarDizimo()">Depositar</button>
+
+        <div class="urna-container">
+            <img src="./Dizimo.jpg" class="urna">
+            <img src="./envelope.webp" class="envelope" id="envelope">
+        </div>
+    </div>
+
+    <script>
+        function adicionarDizimo() {
+            let nome = document.getElementById("nome").value;
+            if (nome === "") {
+                alert("Preencha corretamente o nome do doador!");
+                return;
+            }
+
+            animarEnvelope();
+
+            // Enviar dados para o servidor
+            fetch("http://localhost:3000/dizimo", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ nome: nome })
+            }).then(response => response.json())
+              .then(data => console.log("Servidor respondeu:", data))
+              .catch(error => console.error("Erro ao enviar:", error));
+
+            document.getElementById("nome").value = "";
+        }
+
+        function animarEnvelope() {
+            let envelope = document.getElementById("envelope");
+            envelope.style.top = "120px"; // Faz o envelope descer mais antes de sumir
+
+            setTimeout(() => {
+                envelope.style.opacity = "0"; // Envelope desaparece dentro da urna
+                setTimeout(() => {
+                    envelope.style.top = "20px"; // Retorna à posição inicial
+                    envelope.style.opacity = "1"; // Reaparece para o próximo uso
+                }, 500);
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
